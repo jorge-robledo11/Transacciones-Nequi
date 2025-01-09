@@ -1,0 +1,6 @@
+account_number: str
+fraction_flag: str
+transaction_amount: float64
+transaction_date: datetime64[ns]
+transaction_type: str
+user_id: str

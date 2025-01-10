@@ -49,131 +49,7 @@ def capture_variables(data: pd.DataFrame) -> tuple[list]:
     variables = tuple((continuous, categoricals, discretes, temporaries))
 
     # Retornamos una tupla de listas
-    return variables
-
-
-# Función para obtener la matriz de correlaciones entre los predictores
-def correlation_matrix(data:pd.DataFrame, continuous: list) -> None:
-    
-    """
-    Function to plot correlation_matrix
-
-    Args:
-        data: DataFrame
-        continuous: list
-    
-    Return:
-        Dataviz
-    """
-    
-    correlations = data[continuous].corr(method='pearson', numeric_only=True)
-    plt.figure(figsize=(14, 7))
-    sns.heatmap(correlations, vmax=1, annot=True, cmap='gist_yarg', linewidths=1, square=True)
-    plt.title('Matriz de Correlaciones\n', fontsize=14)
-    plt.xticks(fontsize=10, rotation=25)
-    plt.yticks(fontsize=10, rotation=25)
-    plt.tight_layout()
-    
-
-# Covarianza entre los predictores
-# Función para obtener una matriz de covarianza con los predictores
-def covariance_matrix(data:pd.DataFrame):
-    
-    """
-    Function to get mapped covariance matrix
-
-    Args:
-        data: DataFrame
-    
-    Return:
-        DataFrame
-    """
-    
-    cov_matrix = data.cov()
-    
-    # Crear una matriz de ceros con el mismo tamaño que la matriz de covarianza
-    zeros_matrix = np.zeros(cov_matrix.shape)
-    
-    # Crear una matriz diagonal de ceros reemplazando los valores de la diagonal de la matriz con ceros
-    diagonal_zeros_matrix = np.diag(zeros_matrix)
-    
-    # Reemplazar la diagonal de la matriz de covarianza con la matriz diagonal de ceros
-    np.fill_diagonal(cov_matrix.to_numpy(), diagonal_zeros_matrix)
-    
-    # Mapear los valores con etiquetas para saber cómo covarian los predictores
-    cov_matrix = cov_matrix.map(lambda x: 'Positivo' if x > 0 else 'Negativo' if x < 0 else '') # type: ignore
-    
-    return cov_matrix
-
-
-# Función para graficar la covarianza entre los predictores
-def plotting_covariance(X:pd.DataFrame, continuous: list, n_iter: int) -> None:
-    
-    """
-    Function to plot covariance matrix choosing some random predictors
-
-    Args:
-        X: DataFrame
-        continuous: list
-        n_iter: int
-
-    Return:
-        DataViz
-    """
-
-    # Semilla para efectos de reproducibilidad
-    np.random.seed(n_iter)
-
-    for _ in range(n_iter):
-        # Creamos una figura con tres subfiguras
-        fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 5))
-        plt.suptitle('Covariance Plots\n', fontsize=15)
-
-        # Seleccionamos dos variables aleatorias del Dataframe
-        var1 = np.random.choice(X[continuous].columns)
-        var2 = np.random.choice(X[continuous].columns)
-        while var1 == var2:
-            var2 = np.random.choice(X[continuous].columns)
-
-        # Graficamos la covarianza en la primera subfigura
-        sns.scatterplot(x=var1, y=var2, data=X[continuous], ax=ax1, color='red', alpha=0.6)
-        plt.xlabel(var1)
-        plt.ylabel(var2)
-        plt.xticks()
-        plt.yticks()
-        ax1.grid(color='white', linestyle='-', linewidth=0.25)
-
-        # Seleccionamos dos nuevas variables aleatorias del Dataframe
-        var1 = np.random.choice(X[continuous].columns)
-        var2 = np.random.choice(X[continuous].columns)
-        while var1 == var2:
-            var2 = np.random.choice(X[continuous].columns)
-
-        # Graficamos la covarianza en la segunda subfigura
-        sns.scatterplot(x=var1, y=var2, data=X[continuous], ax=ax2, color='green', alpha=0.6)
-        plt.xlabel(var1)
-        plt.ylabel(var2)
-        plt.xticks()
-        plt.yticks()
-        ax2.grid(color='white', linestyle='-', linewidth=0.25)
-
-        # Seleccionamos otras dos variables aleatorias del Dataframe
-        var1 = np.random.choice(X[continuous].columns)
-        var2 = np.random.choice(X[continuous].columns)
-        while var1 == var2:
-            var2 = np.random.choice(X[continuous].columns)
-
-        # Graficamos la covarianza en la tercera subfigura
-        sns.scatterplot(x=var1, y=var2, data=X[continuous], ax=ax3, color='blue', alpha=0.6)
-        plt.xlabel(var1)
-        plt.ylabel(var2)
-        plt.xticks()
-        plt.yticks()
-        ax3.grid(color='white', linestyle='-', linewidth=0.25)
-
-        # Mostramos la figura
-        fig.tight_layout()
-        plt.show()
+    return variables # type: ignore
 
 
 # Función para obtener la estratificación de clases/target
@@ -220,7 +96,7 @@ def class_distribution(data: pd.DataFrame, target: str) -> None:
     plt.show()
     
 
-def plot_variable_behaviors_over_time(df: pd.DataFrame, time_col: str, target_col: str):
+def plot_variable_behaviors_over_time(data: pd.DataFrame, time_col: str, target_col: str):
     """
     Plots the behavior of variables over time for a given DataFrame.
 
@@ -233,7 +109,7 @@ def plot_variable_behaviors_over_time(df: pd.DataFrame, time_col: str, target_co
         None: Displays the plots.
     """
     # Ordenar el DataFrame por la columna temporal si no está ordenado
-    df = df.sort_values(time_col)
+    df = data.sort_values(time_col)
     
     # Seleccionar las variables a graficar (excluyendo la columna temporal y el target)
     variables = [col for col in df.columns if col != time_col and col != target_col]
@@ -255,7 +131,7 @@ def plot_variable_behaviors_over_time(df: pd.DataFrame, time_col: str, target_co
         
         # Personalizar eje X para más fechas en los ticks
         ax = plt.gca()
-        ax.xaxis.set_major_locator(HourLocator(interval=6))  # Mostrar ticks cada 6 horas
+        ax.xaxis.set_major_locator(HourLocator(interval=12))  # Mostrar ticks cada 6 horas
         ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d %H:%M'))  # Formato granular
         
         # Ajustar tamaño de fuente de xticks
@@ -354,150 +230,88 @@ def diagnostic_plots(data:pd.DataFrame, variables: list[str]) -> None:
         
 # Test de Normalidad de D’Agostino y Pearson
 # Función para observar el comportamiento de las variables continuas en una prueba de normalidad
-def normality_test(data, variables):
+def single_normality_test(data: pd.DataFrame, variable: str) -> None:
+    """
+    Perform a normality test and plot a Q-Q plot for a single variable.
 
+    Args:
+        data: DataFrame
+        variable: str (name of the feature to test and plot)
+    
+    Returns:
+        None
+    """
     display(Latex('Si el $pvalue$ < 0.05; se rechaza la $H_0$ sugiere que los datos no se ajustan de manera significativa a una distribución normal'))
+
+    # Configurar la figura
+    fig, ax = plt.subplots(figsize=(8, 5))
+    plt.suptitle(f"Prueba de Normalidad para '{variable}'", fontsize=12, y=1.05)
     
-    # Configurar figura
-    fig = plt.figure(figsize=(20, 11))
-    plt.suptitle('Prueba de Normalidad', fontsize=16)
-    gs = gridspec.GridSpec(nrows=len(variables) // 3+1, ncols=3, figure=fig)
+    # Gráfico Q-Q
+    stats.probplot(data[variable], dist='norm', plot=ax)
+    ax.set_xlabel(variable)
+    ax.set_xticks(ax.get_xticks())
+    ax.set_xticklabels(ax.get_xticklabels())
+    ax.grid(color='white', linestyle='-', linewidth=0.25)
     
-    for i, var in enumerate(variables):
+    # Calcular p-value
+    p_value = stats.normaltest(data[variable])[1]
+    ax.text(0.05, 0.95, f"p-value = {p_value:.3f}", transform=ax.transAxes, fontsize=13, 
+            verticalalignment='top', bbox=dict(boxstyle='round', facecolor='green', alpha=0.7))
+    
+    plt.tight_layout()
+    plt.show()
+        
+        
+# Función para graficar una sola variable categórica
+def single_categorical_plot(data: pd.DataFrame, variable: str) -> None:
+    """
+    Function to create a distribution graphic for a single categorical or discrete variable.
 
-        ax = fig.add_subplot(gs[i//3, i % 3])
-
-        # Gráfico Q-Q
-        stats.probplot(data[var], dist='norm', plot=ax)
-        ax.set_xlabel(var)
-        ax.set_xticks(ax.get_xticks())
-        ax.set_xticklabels(ax.get_xticklabels())
-        ax.grid(color='white', linestyle='-', linewidth=0.25)
-
-        # P-value
-        p_value = stats.normaltest(data[var])[1]
-        ax.text(0.8, 0.9, f"p-value={p_value:0.3f}", transform=ax.transAxes, fontsize=13) 
-
-    plt.tight_layout(pad=3)
+    Args:
+        data: DataFrame
+        variable: str (name of the feature to plot)
+    
+    Returns:
+        None
+    """
+    # Crear una figura para el gráfico
+    fig, ax = plt.subplots(figsize=(8, 6))
+    
+    # Calcular los porcentajes de cada categoría
+    temp_dataframe = pd.Series(data[variable].value_counts(normalize=True))
+    temp_dataframe.sort_values(ascending=False).plot.bar(
+        color='#f19900', edgecolor='skyblue', ax=ax
+    )
+    
+    # Añadir una línea horizontal al 5% para resaltar las categorías poco comunes
+    ax.axhline(y=0.05, color='#E51A4C', ls='dashed', lw=1.5)
+    ax.set_ylabel('Porcentajes')
+    ax.set_xlabel(variable)
+    ax.set_xticklabels(temp_dataframe.index, rotation=25)
+    ax.grid(color='white', linestyle='-', linewidth=0.25)
+    
+    # Añadir título
+    plt.title(f"Categorical Plot for '{variable}'", fontsize=12, y=1.05)
+    
+    # Mostrar el gráfico
+    plt.tight_layout()
     plt.show()
 
 
-# Definir la transformación de Yeo-Johnson
-def yeo_johnson_transform(x):
-    transformer = PowerTransformer(method='yeo-johnson')
-    return transformer.fit_transform(x.values.reshape(-1, 1)).flatten()
-
-
-def gaussian_transformation(data: pd.DataFrame, variables: list) -> dict:
-    """
-    Function to get Gaussian transformations of the variables
-
-    Args:
-        data: DataFrame
-        variables: list
+# Función para graficar las categóricas segmentadas por el target
+def categoricals_hue_target(data:pd.DataFrame, variables:list, target:str) -> None:
     
-    Return:
-        results: dict
-    """
-    
-    # Definir las transformaciones gaussianas a utilizar
-    transformaciones_gaussianas = {
-        'Log': lambda x: np.log(x + 1e-6) if (x > 0).all() else np.nan,  # Asegurarse de que x sea positivo
-        'Sqrt': lambda x: np.sqrt(x + 1e-6) if (x >= 0).all() else np.nan,  # Asegurarse de que x sea no negativo
-        'Reciprocal': lambda x: 1 / (x + 1e-6) if (x > 0).all() else np.nan,  # Evitar división por cero o negativos
-        'Exp': lambda x: x**2,
-        'Yeo-Johnson': yeo_johnson_transform
-    }
-    
-    # Crear un diccionario para almacenar los resultados de las pruebas de normalidad
-    results = dict()
+    # Graficos de cómo covarian algunas variables con respecto al target
+    paletas = ['rocket', 'mako', 'crest', 'magma', 'viridis', 'flare']
+    np.random.seed(11)
 
-    # Iterar a través de las variables y las transformaciones
-    for var in data[variables].columns:
-        mejores_p_value = -1  # Iniciar con un valor imposible de p-value
-        mejor_transformacion = None
-        
-        for nombre_transformacion, transformacion in transformaciones_gaussianas.items():
-            try:
-                # Aplicar la transformación a la columna
-                variable_transformada = transformacion(data[var])
-                
-                # Asegurarse de que la transformación no genere NaN
-                if not np.isnan(variable_transformada).any():
-                    # Calcular el p-value de la prueba de normalidad
-                    p_value = stats.normaltest(variable_transformada)[1]
-                    
-                    # Actualizar el mejor p-value y transformación si es necesario
-                    if p_value > mejores_p_value:
-                        mejores_p_value = p_value
-                        mejor_transformacion = nombre_transformacion
-            except Exception as e:
-                # Capturar errores en la transformación y continuar
-                print(f"Error al transformar {var} con {nombre_transformacion}: {e}")
-                continue
-        
-        # Almacenar el resultado en el diccionario
-        results[var] = mejor_transformacion if mejor_transformacion else "No Transformation Found"
-        
-    return results
-
-
-
-# Graficar la comparativa entre las variables originales y su respectiva transformación
-def graficar_transformaciones(data: pd.DataFrame, continuous: list, transformacion: dict) -> None:
-    
-    """
-    Function to plot compare Gaussian transformations of the variables and their original state
-
-    Args:
-        data: DataFrame
-        variables: list
-    
-    Return:
-        Dataviz
-    """
-    
-    # Definir las transformaciones gaussianas a utilizar
-    transformaciones_gaussianas = {
-        'Log': np.log,
-        'Sqrt': np.sqrt, 
-        'Reciprocal': lambda x: 1/x, 
-        'Exp': lambda x: x**2, 
-        'Yeo-Johnson': yeo_johnson_transform
-        }
-    
-    data = data.copy()
-    data = data[continuous]
-    
-    for variable, transformacion_name in transformacion.items():
-        # Obtener datos originales
-        data_original = data[variable]
-        
-        # Obtener la transformación correspondiente
-        transformacion_func = transformaciones_gaussianas.get(transformacion_name)
-        
-        # Aplicar transformación
-        data_transformada = transformacion_func(data_original)
-
-        # Crear figura con 2 subplots
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
-
-        # Graficar histograma datos originales 
-        hist_kws = {'color': 'royalblue', 'lw': 0.5}
-        sns.histplot(data_original, ax=ax1, kde=True, bins=50, **hist_kws)
-        ax1.set_title('Original')
-        ax1.grid(color='white', linestyle='-', linewidth=0.25)
-
-        # Graficar histograma datos transformados
-        sns.histplot(data_transformada, ax=ax2, kde=True, bins=50, **hist_kws)
-        ax2.set_title(f'{transformacion_name}')
-        ax2.grid(color='white', linestyle='-', linewidth=0.25)
-        
-        # Cambiar color del KDE en ambos gráficos
-        for ax in [ax1, ax2]:
-            for line in ax.lines:
-                line.set_color('crimson')
-
-        # Mostrar figura
+    for var in data[variables]:
+        plt.figure(figsize=(11, 6))
+        plt.title(f'{var} segmentado por {target}\n', fontsize=12)
+        sns.countplot(x=var, hue=target, data=data, edgecolor='white', lw=0.5, palette=np.random.choice(paletas))
+        plt.ylabel('Cantidades')
+        plt.xticks(fontsize=12, rotation=25)
+        plt.yticks(fontsize=12)
+        plt.grid(color='white', linestyle='-', linewidth=0.25)
         plt.tight_layout()
-        plt.show()

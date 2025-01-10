@@ -3,6 +3,31 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
+import pandas as pd
+import numpy as np
+from sklearn.base import BaseEstimator, TransformerMixin
+
+class NumericColumnTransformer(BaseEstimator, TransformerMixin):
+    """
+    Un transformador que convierte exclusivamente columnas con valores numéricos almacenados como cadenas (str) 
+    a tipos numéricos adecuados (float), sin afectar columnas no numéricas.
+    """
+
+    def fit(self, X: pd.DataFrame, y=None):
+        return self
+
+    def transform(self, X: pd.DataFrame):
+        X_copy = X.copy()
+
+        for col in X_copy.columns:
+            if X_copy[col].dtype == object:  # Verificar si la columna es de tipo str
+                # Verificar si los valores en la columna son puramente numéricos
+                if X_copy[col].apply(lambda x: str(x).replace('.', '', 1).isdigit()).all():
+                    # Convertir a float si todos los valores son numéricos
+                    X_copy[col] = X_copy[col].astype(float)
+        return X_copy
+
+
 class DropDuplicateColumnsTransformer(BaseEstimator, TransformerMixin):
     
     """
@@ -413,202 +438,3 @@ class DateColumnsTransformer(BaseEstimator, TransformerMixin):
             )
 
         return X_transformed
-
-
-class CategoricalColumnsTransformer(BaseEstimator, TransformerMixin):
-    
-    """
-    A transformer for preprocessing categorical columns in a DataFrame.
-
-    Parameters:
-    -----------
-    strip_and_lower: bool, optional (default=True)
-        If True, strip leading and trailing whitespaces and convert to lowercase for string columns.
-
-    Attributes:
-    -----------
-    strip_and_lower: bool
-        Whether to apply strip and lowercase transformation.
-
-    Methods:
-    --------
-    fit(X, y=None):
-        Fit the transformer to the data. Since this transformer doesn't require any training,
-        it returns itself unchanged.
-
-    transform(X):
-        Preprocess categorical columns in the input DataFrame X.
-
-    Examples:
-    ---------
-    >>> import pandas as pd
-    >>> data = pd.DataFrame({'A': [' Foo', 'Bar  ', 'Baz'], 'B': ['True', ' False ', True]})
-    >>> transformer = CategoricalColumnsTransformer()
-    >>> data_transformed = transformer.transform(data)
-    >>> data_transformed
-         A      B
-    0   foo   true
-    1   bar  false
-    2   baz   true
-    """
-
-    def __init__(self, strip_and_lower=True):
-        
-        """
-        Initialize the transformer.
-
-        Parameters:
-        -----------
-        strip_and_lower : bool, optional (default=True)
-            If True, strip leading and trailing whitespaces and convert to lowercase for string columns.
-        """
-        
-        self.strip_and_lower = strip_and_lower
-
-    def fit(self, X:pd.DataFrame, y=None):
-        
-        """
-        Fit the transformer to the data. Since this transformer doesn't require any training,
-        it returns itself unchanged.
-
-        Parameters:
-        -----------
-        X: pandas.DataFrame
-            The input DataFrame.
-
-        y: None
-            Ignored. This parameter is included for compatibility with scikit-learn's transformers.
-
-        Returns:
-        --------
-        self: CategoricalColumnsTransformer
-            The fitted transformer instance.
-        """
-        
-        return self
-
-    def transform(self, X:pd.DataFrame):
-        
-        """
-        Preprocess categorical columns in the input DataFrame X.
-
-        Parameters:
-        -----------
-        X: pandas.DataFrame
-            The input DataFrame with categorical columns to be preprocessed.
-
-        Returns:
-        --------
-        X_transformed: pandas.DataFrame
-            The DataFrame with categorical columns preprocessed according to the specified options.
-        """
-        
-        X = X.copy()
-
-        if self.strip_and_lower:
-            categoricals = X.select_dtypes(include=['object', 'bool']).columns
-            X[categoricals] = X[categoricals].map(lambda x: x.strip().lower() if isinstance(x, str) else x)  # type: ignore
-        return X
-
-
-class DropMissingValuesColumnsTransformer(BaseEstimator, TransformerMixin):
-    """
-    A transformer for dropping columns in a DataFrame based on a missing value threshold.
-
-    Parameters:
-    -----------
-    threshold: float
-        The threshold for column removal. Columns with missing values exceeding this threshold will be dropped.
-
-    Attributes:
-    -----------
-    features_to_drop_: list
-        A list to store the names of columns that were dropped during transformation.
-
-    Methods:
-    --------
-    fit(X, y=None):
-        Fit the transformer to the data. Since this transformer doesn't require any training, it returns itself unchanged.
-
-    transform(X):
-        Remove columns from the input DataFrame X based on the missing value threshold.
-
-    set_output(transform):
-        Set the output type of the transformer ('default' or 'pandas').
-
-    Examples:
-    ---------
-    >>> import pandas as pd
-    >>> data = pd.DataFrame({'A': [1, 2], 'B': [None, 4], 'C': [5, None]})
-    >>> transformer = DropMissingValuesColumnsTransformer(threshold=1/3)
-    >>> transformer.set_output(transform="pandas")
-    >>> transformed_data = transformer.transform(data)
-    >>> transformer.features_to_drop_
-    ['B', 'C']
-    """
-
-    def __init__(self, threshold=1/3):
-        self.threshold = threshold
-        self.features_to_drop_ = list()
-        self._output_transform = "default"  # Default output type
-
-    def fit(self, X: pd.DataFrame, y=None):
-        """
-        Fit the transformer to the data. Since this transformer doesn't require any training,
-        it returns itself unchanged.
-
-        Parameters:
-        -----------
-        X: pandas.DataFrame
-            The input DataFrame.
-
-        y: None
-            Ignored. This parameter is included for compatibility with scikit-learn's transformers.
-
-        Returns:
-        --------
-        self: DropMissingValuesColumnsTransformer
-            The fitted transformer instance.
-        """
-        return self
-
-    def transform(self, X: pd.DataFrame):
-        """
-        Remove columns from the input DataFrame X based on the missing value threshold.
-
-        Parameters:
-        ----------
-        X: pandas.DataFrame
-            The input DataFrame with columns to be potentially removed.
-
-        Returns:
-        -------
-        X_transformed: pandas.DataFrame
-            The DataFrame with columns removed based on the provided threshold.
-        """
-        X_copy = X.copy()
-        columns_to_drop = X.columns[X.isnull().mean() > self.threshold].tolist()
-        self.features_to_drop_ = columns_to_drop  # Store the names of dropped columns
-        X_transformed = X_copy.drop(columns=columns_to_drop)
-
-        # Handle output transformation
-        if self._output_transform == "pandas":
-            return pd.DataFrame(X_transformed, columns=X_copy.drop(columns=columns_to_drop).columns)
-        return X_transformed
-
-    def set_output(self, transform="default"):
-        """
-        Set the output type of the transformer.
-
-        Parameters:
-        -----------
-        transform: str, default 'default'
-            The output type. Options are 'default' (NumPy array) or 'pandas' (pandas DataFrame).
-
-        Returns:
-        --------
-        self: DropMissingValuesColumnsTransformer
-            The transformer instance with updated output type.
-        """
-        self._output_transform = transform
-        return self

@@ -68,7 +68,7 @@ Se trabajó con una muestra correspondiente al 10% del tamaño de los datasets o
 3. **Consistencia en fechas**
    - Rango de fechas plausible (ej.: desde 2021-01-01 hasta 2021-11-30, sin fechas futuras ni inválidas).
 
-### Estadísticos Descriptivas
+### Estadísticos Descriptivos
 - **Montos (`transaction_amount`)**  
   - Mínimo: 5.94  
   - Máximo: ~3,210  
@@ -206,19 +206,29 @@ Dado el **caso de estudio** y las consideraciones previas (ventaja de simplicida
 En conclusión, se puede combinar un **proceso batch diario** con una **capa de streaming** enfocada en eventos de riesgo alto, maximizando la relación **costo–beneficio** y proporcionando, a la vez, la **reacción inmediata** en los escenarios más críticos.
 
 ### Arquitectura Ideal
-1. **Data Lake (S3/GCS/HDFS)**
-   - Destinado a almacenar las transacciones en crudo, en formatos como CSV o Parquet.
-   
-2. **ETL con Spark/Airflow**
-   - Procesos de limpieza y transformación de datos.
-   - Generación de _features_ adicionales (por ejemplo, la suma de montos en 24h, el conteo de transacciones por usuario, etc.).
+1. **Data Lake (Amazon S3)**  
+   - Se utiliza **Amazon S3** como repositorio central para almacenar las transacciones en crudo.  
+   - Formatos recomendados: **CSV** o **Parquet**.  
+   - Es la capa base donde se concentran todos los datos antes de su procesamiento.
 
-3. **Motor de Reglas o ML**
-   - Aplicar reglas heurísticas (ej.: conteo de transacciones en 24h, sumas de montos) o algoritmos de **detección de anomalías** (Isolation Forest, DBSCAN, etc.) para identificar patrones de fraccionamiento más complejos.
+2. **ETL con AWS Glue**  
+   - **AWS Glue**: Servicio de ETL serverless que facilita la **descubrimiento de datos**, creación de **catálogos** y la **transformación** (por ejemplo, limpieza de registros, formateo de fechas, etc.).
+   - **Generación de features**: Calcular métricas como la suma de montos en 24 horas, conteo de transacciones por usuario, etc.
 
-4. **Data Warehouse**
-   - Almacenar los resultados en un sistema analítico (Redshift, BigQuery, Snowflake, etc.).
-   - Herramientas de **Inteligencia de Negocio** (Power BI, Tableau, Looker) para visualizar alertas y reportes de fraccionamiento transaccional.
+3. **Motor de Reglas**  
+   - **AWS Lambda** con lógica heurística:  
+     - Funciones que procesan lotes (o eventos) para aplicar las reglas de conteo en 24 horas.  
+     - Ideal para lógica sencilla o cuando se busca un procesamiento serverless.
+   - **Amazon Kinesis** o **AWS Managed Service for Apache Flink** (para streaming):  
+     - Si se requiere análisis en **tiempo real**, se consume el flujo de datos y se aplican las reglas o modelos ML de manera continua.
+
+4. **Data Warehouse (Amazon Redshift)**  
+   - Almacenar los resultados finales (transacciones marcadas como fraccionadas o no) en **Amazon Redshift** para consultas analíticas de alto rendimiento.  
+   - Permite realizar consultas SQL rápidas sobre grandes volúmenes de datos y combinar información histórica con la más reciente.
+
+5. **BI e Inteligencia de Negocio (Amazon QuickSight)**  
+   - Utilizar **Amazon QuickSight** para construir dashboards y reportes sobre las transacciones, mostrando patrones de fraccionamiento, tendencias de montos, alertas generadas, etc.  
+   - Otras herramientas de BI (Tableau, Power BI) podrían conectarse a Redshift o a S3 según la necesidad.
 
 --- 
 ## Conclusiones y próximos pasos
@@ -246,6 +256,3 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
    - **Optimizar el pipeline**: refinar la construcción de ventanas (posibles mejoras en manejo de fechas, segmentación por tipo de transacción, etc.).  
    - **Evaluar Integraciones**: con sistemas de notificaciones o dashboards para accionabilidad inmediata.
    - **Automatizar Alertas**: configurar reglas de negocio que notifiquen automáticamente al equipo de riesgo cuando se superen ciertos umbrales críticos.
-
-En resumen, la **propuesta** presentada brinda un flujo sólido para la **detección de fraccionamiento transaccional**:  
-_Sencillo de implementar_ con reglas heurísticas y _flexible_ para migrar a una plataforma de análisis en tiempo real o un modelo avanzado de Machine Learning, según crezcan las necesidades de la organización.

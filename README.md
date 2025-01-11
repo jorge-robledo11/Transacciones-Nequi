@@ -13,16 +13,17 @@ Este documento describe el proceso seguido para **explorar** los datos, **identi
    - [Estadísticos Descriptivos](#estadísticos-descriptivos)  
    - [Hipótesis Iniciales](#hipótesis-iniciales)  
 5. [Definición del Modelo Analítico](#definición-del-modelo-analítico)  
-   - [Flujo de Datos](#flujo-de-datos)  
+   - [Flujo de Datos](#flujo-de-datos)
+   - [Criterio de Selección del Modelo Analítico](#criterio-de-selección-del-modelo-analítico)
    - [Lógica de Fraccionamiento](#lógica-de-fraccionamiento)  
    - [Frecuencia de Actualización](#frecuencia-de-actualización)  
    - [Arquitectura Ideal](#arquitectura-ideal)
-6. [Conclusiones y Recomendaciones](#conclusiones-y-recomendaciones)
+6. [Conclusiones y Próximos pasos](#conclusiones-y-próximos-pasos)
 
 ---
 
 ## Introducción
-En el marco de la prueba técnica, se facilita un conjunto de datos (`dataset`) que contiene información de transacciones financieras. El desafío consiste en **detectar** la mala práctica de **Fraccionamiento Transaccional**, donde un usuario (o cuenta) realiza múltiples transacciones de menor valor que, agrupadas en una ventana de 24 horas, equivalen o superan una supuesta “transacción original”.
+En el marco de la prueba técnica, se facilita un conjunto de datos (dataset) que contiene información de transacciones financieras. El desafío consiste en **detectar** la mala práctica de **Fraccionamiento Transaccional**, donde un usuario (o cuenta) realiza múltiples transacciones de menor valor que, agrupadas en una ventana de 24 horas, equivalen o superan una supuesta “transacción original”.
 
 ---
 
@@ -113,7 +114,6 @@ Se trabajó con una muestra correspondiente al 10% del tamaño de los datasets o
    - Creación de un flag (`fraction_flag`) para cada transacción.
 
 ### Criterio de Selección del Modelo Analítico
-
 El **modelo analítico** propuesto consiste en la **evaluación de transacciones** dentro de una **ventana rodante de 24 horas** y la aplicación de una **regla heurística** (conteo de transacciones en ese lapso). A continuación, se describe el **porqué** de esta selección:
 
 1. **Simplicidad e Interpretabilidad**  
@@ -204,3 +204,48 @@ Dado el **caso de estudio** y las consideraciones previas (ventaja de simplicida
 - **Escalabilidad**: En caso de que aparezcan más casos urgentes o se exija una respuesta aún más rápida, se pueden **ampliar** gradualmente las reglas de streaming.
 
 En conclusión, se puede combinar un **proceso batch diario** con una **capa de streaming** enfocada en eventos de riesgo alto, maximizando la relación **costo–beneficio** y proporcionando, a la vez, la **reacción inmediata** en los escenarios más críticos.
+
+### Arquitectura Ideal
+1. **Data Lake (S3/GCS/HDFS)**
+   - Destinado a almacenar las transacciones en crudo, en formatos como CSV o Parquet.
+   
+2. **ETL con Spark/Airflow**
+   - Procesos de limpieza y transformación de datos.
+   - Generación de _features_ adicionales (por ejemplo, la suma de montos en 24h, el conteo de transacciones por usuario, etc.).
+
+3. **Motor de Reglas o ML**
+   - Aplicar reglas heurísticas (ej.: conteo de transacciones en 24h, sumas de montos) o algoritmos de **detección de anomalías** (Isolation Forest, DBSCAN, etc.) para identificar patrones de fraccionamiento más complejos.
+
+4. **Data Warehouse**
+   - Almacenar los resultados en un sistema analítico (Redshift, BigQuery, Snowflake, etc.).
+   - Herramientas de **Inteligencia de Negocio** (Power BI, Tableau, Looker) para visualizar alertas y reportes de fraccionamiento transaccional.
+
+--- 
+## Conclusiones y próximos pasos
+
+1. **Implementación**  
+   - Se comprobó que la heurística basada en la ventana de 24 horas identifica posibles fraccionamientos de forma clara y comprensible.  
+   - No obstante, resulta fundamental **validar umbrales** (por ejemplo, `min_count`) con datos históricos y conocimiento experto del negocio para reducir falsos positivos o falsos negativos.
+
+2. **Trazabilidad**  
+   - Mantener un registro detallado de las **transformaciones** y **reglas** aplicadas (por ejemplo, en un repositorio de versiones o un documento de políticas de cumplimiento).  
+   - Esto facilita auditorías y revisiones posteriores, especialmente si la detección de fraccionamiento tiene **implicaciones legales o regulatorias**.
+
+3. **Monitoreo**  
+   - Una vez en producción, monitorear la **efectividad** de la detección:
+     - ¿Cuántos casos son verdaderos positivos vs. cuántos falsos?  
+     - ¿En qué escenarios se generan alertas innecesarias?  
+   - Con esta retroalimentación, ajustar parámetros (número mínimo de transacciones, posible umbral de montos) o incorporar más características relevantes.
+
+4. **Escalabilidad**  
+   - La **arquitectura** propuesta (Data Lake, ETL, Motor de Reglas/ML, Data Warehouse/BI) permite crecer en complejidad:
+     - Empezar con un enfoque **batch** y, si es necesario, evolucionar a **streaming** para detectar casos críticos en tiempo real.  
+     - Integrar algoritmos de detección de anomalías o Machine Learning avanzado si se requiere una **detección más sofisticada**.
+
+5. **Próximos Pasos**  
+   - **Optimizar el pipeline**: refinar la construcción de ventanas (posibles mejoras en manejo de fechas, segmentación por tipo de transacción, etc.).  
+   - **Evaluar Integraciones**: con sistemas de notificaciones o dashboards para accionabilidad inmediata.
+   - **Automatizar Alertas**: configurar reglas de negocio que notifiquen automáticamente al equipo de riesgo cuando se superen ciertos umbrales críticos.
+
+En resumen, la **propuesta** presentada brinda un flujo sólido para la **detección de fraccionamiento transaccional**:  
+_Sencillo de implementar_ con reglas heurísticas y _flexible_ para migrar a una plataforma de análisis en tiempo real o un modelo avanzado de Machine Learning, según crezcan las necesidades de la organización.

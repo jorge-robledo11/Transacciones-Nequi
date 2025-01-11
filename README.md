@@ -112,9 +112,7 @@ Se trabajó con una muestra correspondiente al 10% del tamaño de los datasets o
 5. **Salida**  
    - Creación de un flag (`fraction_flag`) para cada transacción.
 
----
 ### Criterio de Selección del Modelo Analítico
----
 
 El **modelo analítico** propuesto consiste en la **evaluación de transacciones** dentro de una **ventana rodante de 24 horas** y la aplicación de una **regla heurística** (conteo de transacciones en ese lapso). A continuación, se describe el **porqué** de esta selección:
 
@@ -135,8 +133,6 @@ El **modelo analítico** propuesto consiste en la **evaluación de transacciones
    - Permite crear un **punto de partida** e iterar en la medida que la organización requiera mayor precisión o menos falsos positivos.
 
 En síntesis, se eligió un **modelo heurístico** y **reglas de negocio** por su **clara interpretabilidad, bajo costo de implementación** y **alineación con las definiciones de fraccionamiento transaccional** (ventanas de 24 horas, número mínimo de transacciones), lo que facilita la **adopción y validación** en entornos de cumplimiento o auditoría.
-
----
 
 ### Lógica de Fraccionamiento
 - **Ventana**: `[t - 24h, t]` para cada transacción.  
@@ -185,7 +181,6 @@ data['fraction_flag'] = np.where(
 )
 ```
 
----
 ### Frecuencia de Actualización
 Dado el **caso de estudio** y las consideraciones previas (ventaja de simplicidad vs. inmediatez en la detección), se sugiere un **enfoque híbrido** que equilibre la rapidez de respuesta y la factibilidad técnica:
 

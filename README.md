@@ -186,7 +186,7 @@ data = data.sort_values(by=['user_id', 'transaction_date'])
 bool_flags = (
     data
     .groupby('user_id', group_keys=False)
-    .apply(lambda df: check_fraccionamiento_24h(df, min_count=2))
+    .apply(lambda df: check_fraccionamiento_24h(df, treshold=2))
     .explode()        # Separa la lista booleana por filas
     .astype(bool)     # Asegurarnos de que sea tipo bool
     .values           # Convertir a array de numpy

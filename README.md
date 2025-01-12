@@ -212,51 +212,6 @@ Dado el **caso de estudio** y las consideraciones previas (ventaja de simplicida
 
 En conclusión, se puede combinar un **proceso batch diario** con una **capa de streaming** enfocada en eventos de riesgo alto, maximizando la relación **costo–beneficio** y proporcionando, a la vez, la **reacción inmediata** en los escenarios más críticos.
 
-### Arquitectura Ideal
-### 1. Data Lake (Amazon S3)
-- **Almacenamiento** de todas las transacciones en formato **CSV** o **Parquet**.
-- **Punto central** donde se depositan los datos tanto de ingestas diarias (batch) como de flujos en tiempo real (opcionalmente, usando Kinesis Firehose).
-
----
-
-### 2. ETL Batch con AWS Glue
-- **AWS Glue**  
-  - Descubrimiento de datos y ejecución de scripts ETL en modo serverless.  
-  - Limpieza, normalización y consolidación de transacciones.
-- **Planificación Diaria**  
-  - Se programa una corrida (por ejemplo, cada noche) para generar un dataset “enriquecido”, aplicando **reglas heurísticas** (ventana de 24 horas, número mínimo de transacciones).  
-  - Las transacciones etiquetadas como “fraccionadas” o “no fraccionadas” se guardan en un nuevo conjunto de datos.
-
----
-
-### 3. Componente de Streaming (Amazon Kinesis + AWS Lambda)
-- **Amazon Kinesis**  
-  - Recibe transacciones en tiempo cercano.  
-  - Puede integrarse con **Kinesis Data Firehose** para volcar datos a S3 o con **Kinesis Data Analytics** si se necesita mayor procesamiento.
-- **AWS Lambda**  
-  - Funciones serverless que aplican **la misma regla heurística** en tiempo real.  
-  - Por ejemplo, cada evento se evalúa: “¿Cuántas transacciones realizó este `user_id` en las últimas 24h?”  
-  - De detectar un fraccionamiento inminente, **Lambda** puede emitir una alerta (SNS, correo, etc.) o marcar la transacción como “fraccionada” instantáneamente.
-- **Envío a S3**  
-  - Kinesis Firehose, tras etiquetar los datos, puede guardarlos de nuevo en **Amazon S3**, alimentando así el pipeline batch con información actualizada.
-
----
-
-### 4. Almacenamiento y Consulta (Amazon Redshift)
-- **Consolidación**  
-  - Cargar las transacciones ya etiquetadas (batch + streaming) en **Amazon Redshift**.  
-  - Permite realizar análisis históricos, comparaciones de tendencias, etc.
-- **Consultas Analíticas**  
-  - Mediante SQL de alto rendimiento, se exploran patrones de fraccionamiento, frecuencia de usuarios, etc.
-
----
-
-### 5. Business Intelligence (Amazon QuickSight)
-- **Visualización**  
-  - Conectarse a **Redshift** para crear dashboards sobre la actividad de fraccionamiento (número de transacciones en 24h, top usuarios, etc.).
-- **Alertas e Indicadores**  
-  - Configurar paneles que muestren las transacciones marcadas como “fraccionadas”, generando insights para el equipo de riesgo o cumplimiento.
-
 ---
 ## Resultados
 

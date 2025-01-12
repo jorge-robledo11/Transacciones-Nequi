@@ -207,6 +207,9 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
 
 ---
 ## Resultados
+El siguiente tópico presenta un resumen visual y descriptivo de los hallazgos obtenidos tras aplicar la **lógica heurística** de detección de fraccionamiento transaccional. Esta lógica se fundamenta en agrupar las transacciones dentro de ventanas de 24 horas y marcar como “fraccionadas” aquellas que cumplan ciertos criterios (por ejemplo, número de transacciones superior a un umbral).
+
+Por medio de diversos **gráficos e indicadores**, se evidencian patrones y tendencias relevantes para el negocio, tales como la proporción global de transacciones fraccionadas, el comportamiento según día de la semana u horario, la distribución de montos y los usuarios con mayor incidencia de fraccionamiento. Estos insights permiten a las áreas de cumplimiento y riesgo **priorizar** investigaciones y **reforzar** estrategias de control enfocados en los escenarios más críticos.
 
 ### 1. Distribución global de transacciones:
 ![Distribución global de transacciones](./reports/fig1.png "Distribución global de transacciones")

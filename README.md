@@ -18,7 +18,14 @@ Este documento describe el proceso seguido para **explorar** los datos, **identi
    - [Lógica de Fraccionamiento](#lógica-de-fraccionamiento)  
    - [Frecuencia de Actualización](#frecuencia-de-actualización)  
    - [Arquitectura Ideal](#arquitectura-ideal)
-6. [Conclusiones y Próximos pasos](#conclusiones-y-próximos-pasos)
+6. [Resultados](#resultados)
+   - [Distribución global de transacciones](#distribución-global-de-transacciones)
+   - [Densidad de montos promedios](#densidad-de-montos-promedios)
+   - [Transacciones fraccionadas por día de la semana](#transacciones-fraccionadas-por-día-de-la-semana)
+   - [Heatmap día vs hora (transacciones fraccionadas)](#heatmap-día-vs-hora-(transacciones-fraccionadas))
+   - [Porcentaje de transacciones fraccionadas por tipo](#porcentaje-de-transacciones-fraccionadas-por-tipo)
+   - [Top 10 usuarios con más transacciones fraccionadas](#top-10-usuarios-con-más-transacciones-fraccionadas)
+7. [Conclusiones y Próximos pasos](#conclusiones-y-próximos-pasos)
 
 ---
 
@@ -212,13 +219,10 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
 
 ---
 
-### 2. ETL Batch con AWS Glue/Amazon EMR
+### 2. ETL Batch con AWS Glue
 - **AWS Glue**  
   - Descubrimiento de datos y ejecución de scripts ETL en modo serverless.  
   - Limpieza, normalización y consolidación de transacciones.
-- **Amazon EMR (Elastic MapReduce)**  
-  - Permite ejecutar Spark en modo batch para grandes volúmenes de datos.  
-  - Calcular métricas de fraccionamiento: suma de montos en 24h, conteo de transacciones por `user_id`, etc.
 - **Planificación Diaria**  
   - Se programa una corrida (por ejemplo, cada noche) para generar un dataset “enriquecido”, aplicando **reglas heurísticas** (ventana de 24 horas, número mínimo de transacciones).  
   - Las transacciones etiquetadas como “fraccionadas” o “no fraccionadas” se guardan en un nuevo conjunto de datos.
@@ -252,6 +256,33 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
   - Conectarse a **Redshift** para crear dashboards sobre la actividad de fraccionamiento (número de transacciones en 24h, top usuarios, etc.).
 - **Alertas e Indicadores**  
   - Configurar paneles que muestren las transacciones marcadas como “fraccionadas”, generando insights para el equipo de riesgo o cumplimiento.
+
+---
+## Resultados
+
+1. **Distribución global de transacciones**:
+![Distribución global de transacciones](./reports/fig1.png "Distribución global de transacciones")
+- La gráfica circular revela que aproximadamente 7.8% de las transacciones se clasifican como FRACCIONADAS, frente al 92.2% que no lo están. Esto indica que el fraccionamiento, si bien no es mayoritario, no es un fenómeno despreciable y vale la pena monitorearlo.
+
+2. **Densidad de montos promedios**
+- Al comparar las distribuciones de montos “fraccionados” vs. “no fraccionados”, se observa que las transacciones marcadas como FRACCIONADAS tienden a concentrarse en rangos de menor valor (promedio cercano a 122), mientras las “no fraccionadas” exhiben montos más altos (promedio alrededor de 197).
+- Esto sugiere que los usuarios podrían dividir transacciones grandes en varias de menor importe para evadir controles, alineándose con la lógica de fraccionamiento.
+
+3. **Transacciones fraccionadas por día de la semana**
+- El gráfico circular y la respectiva gráfica de barras muestran que los días Tuesday (16.2%) y Wednesday (15.7%) destacan con más transacciones fraccionadas, seguidos por Thursday, Friday y Saturday en porcentajes no muy lejanos.
+- El día Sunday (10.6%) es el de menor incidencia de fraccionamiento, aunque no hay un día “libre” de este comportamiento.
+
+4. **Heatmap día vs. hora (transacciones fraccionadas)**
+- El mapa de calor confirma que hay picos de actividad fraccionada a media mañana y primeras horas de la tarde (entre 9:00 y 16:00, aproximadamente), concentrados sobre todo entre martes y viernes.
+- Esto indica que los usuarios suelen fraccionar transacciones en horarios laborales o comerciales.
+
+5. **Porcentaje de transacciones fraccionadas por tipo**
+- La barra horizontal refleja que cerca de 64.6% de las operaciones fraccionadas son débito, y el 35.4% restante son crédito.
+- Esto coincide con un posible patrón de retiros o pagos fraccionados, aunque no se descarta la práctica en créditos.
+
+6. **Top 10 usuarios con más transacciones fraccionadas**
+- La visualización final ubica a ciertos usuarios (identificados por su `user_id`) como los principales responsables de un número elevado de transacciones fraccionadas, superando los 600 eventos en algunos casos.
+- Estos perfiles son los principales candidatos a ser investigados o monitoreados por los equipos de riesgo.
 
 --- 
 ## Conclusiones y próximos pasos

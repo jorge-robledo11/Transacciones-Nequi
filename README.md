@@ -16,15 +16,14 @@ Este documento describe el proceso seguido para **explorar** los datos, **identi
    - [Flujo de Datos](#flujo-de-datos)
    - [Criterio de Selección del Modelo Analítico](#criterio-de-selección-del-modelo-analítico)
    - [Lógica de Fraccionamiento](#lógica-de-fraccionamiento)  
-   - [Frecuencia de Actualización](#frecuencia-de-actualización)  
-   - [Arquitectura Ideal](#arquitectura-ideal)
+   - [Frecuencia de Actualización](#frecuencia-de-actualización)
 6. [Resultados](#resultados)
    - [Distribución global de transacciones](#distribución-global-de-transacciones)
    - [Densidad de montos promedios](#densidad-de-montos-promedios)
-   - [Transacciones fraccionadas por día de la semana](#transacciones-fraccionadas-por-día-de-la-semana)
-   - [Heatmap día vs hora (transacciones fraccionadas)](#heatmap-día-vs-hora-(transacciones-fraccionadas))
+   - [Transacciones fraccionadas por dia de la semana](#transacciones-fraccionadas-por-dia-de-la-semana)
+   - [Heatmap dia vs hora transacciones fraccionadas](#heatmap-dia-vs-hora-transacciones-fraccionadas)
    - [Porcentaje de transacciones fraccionadas por tipo](#porcentaje-de-transacciones-fraccionadas-por-tipo)
-   - [Top 10 usuarios con más transacciones fraccionadas](#top-10-usuarios-con-más-transacciones-fraccionadas)
+   - [Top 10 usuarios con mas transacciones fraccionadas](#top-10-usuarios-con-mas-transacciones-fraccionadas)
 7. [Conclusiones y Próximos pasos](#conclusiones-y-próximos-pasos)
 
 ---
@@ -88,13 +87,10 @@ Se trabajó con una muestra correspondiente al 10% del tamaño de los datasets o
   - 20% Crédito
 
 #### Visualizaciones
-- **Histograma**
-   - La mayoría de las transacciones tienen montos bajos (concentradas cerca de 0).
-   - Pocas transacciones tienen montos altos, lo que genera una larga cola hacia la derecha.
-
-- **Boxplot**
-   - La gran cantidad de valores atípicos sugiere que el conjunto de datos tiene muchas transacciones poco comunes con montos elevados.
-   - La mediana está cerca del límite inferior de la caja, lo que refuerza que la mayoría de los datos están concentrados en valores bajos.
+- La mayoría de las transacciones tienen montos bajos (concentradas cerca de 0).
+- Pocas transacciones tienen montos altos, lo que genera una larga cola hacia la derecha.
+- La gran cantidad de valores atípicos sugiere que el conjunto de datos tiene muchas transacciones poco comunes con montos elevados.
+- La mediana está cerca del límite inferior de la caja, lo que refuerza que la mayoría de los datos están concentrados en valores bajos.
 
 
 ### Hipótesis Iniciales
@@ -212,42 +208,36 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
 ---
 ## Resultados
 
-1. **Distribución global de transacciones**:
-
+### 1. Distribución global de transacciones:
 ![Distribución global de transacciones](./reports/fig1.png "Distribución global de transacciones")
 
 - La gráfica circular revela que aproximadamente 7.8% de las transacciones se clasifican como FRACCIONADAS, frente al 92.2% que no lo están. Esto indica que el fraccionamiento, si bien no es mayoritario, no es un fenómeno despreciable y vale la pena monitorearlo.
 
-2. **Densidad de montos promedios**
-
+### 2. Densidad de montos promedios
 ![Densidad de montos promedios](./reports/fig2.png "Densidad de montos promedios")
 
 - Al comparar las distribuciones de montos “fraccionados” vs. “no fraccionados”, se observa que las transacciones marcadas como FRACCIONADAS tienden a concentrarse en rangos de menor valor (promedio cercano a 122), mientras las “no fraccionadas” exhiben montos más altos (promedio alrededor de 197).
 - Esto sugiere que los usuarios podrían dividir transacciones grandes en varias de menor importe para evadir controles, alineándose con la lógica de fraccionamiento.
 
-3. **Transacciones fraccionadas por día de la semana**
-
+### 3. Transacciones fraccionadas por día de la semana
 ![Transacciones fraccionadas por día de la semana](./reports/fig3.png "Transacciones fraccionadas por día de la semana")
 
 - El gráfico circular y la respectiva gráfica de barras muestran que los días Tuesday (16.2%) y Wednesday (15.7%) destacan con más transacciones fraccionadas, seguidos por Thursday, Friday y Saturday en porcentajes no muy lejanos.
 - El día Sunday (10.6%) es el de menor incidencia de fraccionamiento, aunque no hay un día “libre” de este comportamiento.
 
-4. **Heatmap día vs. hora (transacciones fraccionadas)**
-
+### 4. Heatmap día vs. hora (transacciones fraccionadas)
 ![Heatmap día vs. hora (transacciones fraccionadas)](./reports/fig4.png "Heatmap día vs. hora (transacciones fraccionadas)")
 
 - El mapa de calor confirma que hay picos de actividad fraccionada a media mañana y primeras horas de la tarde (entre 9:00 y 16:00, aproximadamente), concentrados sobre todo entre martes y viernes.
 - Esto indica que los usuarios suelen fraccionar transacciones en horarios laborales o comerciales.
 
-5. **Porcentaje de transacciones fraccionadas por tipo**
-
+### 5. Porcentaje de transacciones fraccionadas por tipo
 ![Porcentaje de transacciones fraccionadas por tipo](./reports/fig5.png "Porcentaje de transacciones fraccionadas por tipo")
 
 - La barra horizontal refleja que cerca de 64.6% de las operaciones fraccionadas son débito, y el 35.4% restante son crédito.
 - Esto coincide con un posible patrón de retiros o pagos fraccionados, aunque no se descarta la práctica en créditos.
 
-6. **Top 10 usuarios con más transacciones fraccionadas**
-
+### 6. Top 10 usuarios con más transacciones fraccionadas
 ![Top 10 usuarios con más transacciones fraccionadas](./reports/fig6.png "Top 10 usuarios con más transacciones fraccionadas")
 
 - La visualización final ubica a ciertos usuarios (identificados por su `user_id`) como los principales responsables de un número elevado de transacciones fraccionadas, superando los 600 eventos en algunos casos.
@@ -270,12 +260,7 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
      - ¿En qué escenarios se generan alertas innecesarias?  
    - Con esta retroalimentación, ajustar parámetros (número mínimo de transacciones, posible umbral de montos) o incorporar más características relevantes.
 
-4. **Escalabilidad**  
-   - La **arquitectura** propuesta (Data Lake, ETL, Motor de Reglas/ML, Data Warehouse/BI) permite crecer en complejidad:
-     - Empezar con un enfoque **batch** y, si es necesario, evolucionar a **streaming** para detectar casos críticos en tiempo real.  
-     - Integrar algoritmos de detección de anomalías o Machine Learning avanzado si se requiere una **detección más sofisticada**.
-
-5. **Próximos Pasos**  
+4. **Próximos Pasos**  
    - **Optimizar el pipeline**: refinar la construcción de ventanas (posibles mejoras en manejo de fechas, segmentación por tipo de transacción, etc.).  
    - **Evaluar Integraciones**: con sistemas de notificaciones o dashboards para accionabilidad inmediata.
    - **Automatizar Alertas**: configurar reglas de negocio que notifiquen automáticamente al equipo de riesgo cuando se superen ciertos umbrales críticos.

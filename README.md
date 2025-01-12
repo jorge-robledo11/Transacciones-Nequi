@@ -213,31 +213,43 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
 ## Resultados
 
 1. **Distribución global de transacciones**:
+
 ![Distribución global de transacciones](./reports/fig1.png "Distribución global de transacciones")
+
 - La gráfica circular revela que aproximadamente 7.8% de las transacciones se clasifican como FRACCIONADAS, frente al 92.2% que no lo están. Esto indica que el fraccionamiento, si bien no es mayoritario, no es un fenómeno despreciable y vale la pena monitorearlo.
 
 2. **Densidad de montos promedios**
+
 ![Densidad de montos promedios](./reports/fig2.png "Densidad de montos promedios")
+
 - Al comparar las distribuciones de montos “fraccionados” vs. “no fraccionados”, se observa que las transacciones marcadas como FRACCIONADAS tienden a concentrarse en rangos de menor valor (promedio cercano a 122), mientras las “no fraccionadas” exhiben montos más altos (promedio alrededor de 197).
 - Esto sugiere que los usuarios podrían dividir transacciones grandes en varias de menor importe para evadir controles, alineándose con la lógica de fraccionamiento.
 
 3. **Transacciones fraccionadas por día de la semana**
+
 ![Transacciones fraccionadas por día de la semana](./reports/fig3.png "Transacciones fraccionadas por día de la semana")
+
 - El gráfico circular y la respectiva gráfica de barras muestran que los días Tuesday (16.2%) y Wednesday (15.7%) destacan con más transacciones fraccionadas, seguidos por Thursday, Friday y Saturday en porcentajes no muy lejanos.
 - El día Sunday (10.6%) es el de menor incidencia de fraccionamiento, aunque no hay un día “libre” de este comportamiento.
 
 4. **Heatmap día vs. hora (transacciones fraccionadas)**
+
 ![Heatmap día vs. hora (transacciones fraccionadas)](./reports/fig4.png "Heatmap día vs. hora (transacciones fraccionadas)")
+
 - El mapa de calor confirma que hay picos de actividad fraccionada a media mañana y primeras horas de la tarde (entre 9:00 y 16:00, aproximadamente), concentrados sobre todo entre martes y viernes.
 - Esto indica que los usuarios suelen fraccionar transacciones en horarios laborales o comerciales.
 
 5. **Porcentaje de transacciones fraccionadas por tipo**
+
 ![Porcentaje de transacciones fraccionadas por tipo](./reports/fig5.png "Porcentaje de transacciones fraccionadas por tipo")
+
 - La barra horizontal refleja que cerca de 64.6% de las operaciones fraccionadas son débito, y el 35.4% restante son crédito.
 - Esto coincide con un posible patrón de retiros o pagos fraccionados, aunque no se descarta la práctica en créditos.
 
 6. **Top 10 usuarios con más transacciones fraccionadas**
+
 ![Top 10 usuarios con más transacciones fraccionadas](./reports/fig6.png "Top 10 usuarios con más transacciones fraccionadas")
+
 - La visualización final ubica a ciertos usuarios (identificados por su `user_id`) como los principales responsables de un número elevado de transacciones fraccionadas, superando los 600 eventos en algunos casos.
 - Estos perfiles son los principales candidatos a ser investigados o monitoreados por los equipos de riesgo.
 

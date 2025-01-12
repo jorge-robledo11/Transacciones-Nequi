@@ -1,4 +1,4 @@
-# Prueba Técnica: Detección de Fraccionamiento Transaccional
+# Detección de Fraccionamiento Transaccional
 
 Este documento describe el proceso seguido para **explorar** los datos, **identificar** variables relevantes y **definir** un modelo/heurístico para detectar la práctica del **Fraccionamiento Transaccional**, entendida como la división de una transacción grande en varias más pequeñas dentro de una misma ventana de 24 horas.
 

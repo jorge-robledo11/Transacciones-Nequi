@@ -141,24 +141,43 @@ En síntesis, se eligió un **modelo heurístico** y **reglas de negocio** por s
 
 ```python
 # Función que aplica las reglas de negocio
-def check_fraccionamiento_24h(user_df, min_count=2):
-    times = user_df['transaction_date'].values
-    flags = list()
-    for i in range(len(times)):
-        current_time = times[i]
-        window_mask = (
-            (times >= current_time - np.timedelta64(24, 'h')) & 
-            (times <= current_time)
-        )
-        window_sub = user_df[window_mask]
-        count_tx = len(window_sub)
-        
-        if count_tx >= min_count:
-            flags.append(True)
-        else:
-            flags.append(False)
-            
-    return flags
+def check_fraccionamiento_24h(user_df: pd.DataFrame, treshold: int=2):
+   """
+   Función que evalúa, para cada transacción de un usuario, cuántas transacciones
+   ocurren en la ventana de [t - 24h, t]. Si el conteo de transacciones en esa
+   ventana es >= treshold, se considera 'fraccionada'.
+
+   Parámetros:
+   -----------
+   user_df: pd.DataFrame
+      Subconjunto de datos correspondientes a transacciones del core financiero
+   treshold: int
+      Número mínimo de transacciones que activan la bandera de fraccionamiento.
+      Por defecto es 2, pero puede ajustarse según necesidades de negocio.
+
+   Retorna:
+   --------
+   flags: list of bool
+      Lista booleana del mismo tamaño que user_df indicando True (fraccionada)
+      o False (no fraccionada) para cada transacción.
+   """
+   times = user_df['transaction_date'].values
+   flags = list()
+   for i in range(len(times)):
+      current_time = times[i]
+      window_mask = (
+         (times >= current_time - np.timedelta64(24, 'h')) & 
+         (times <= current_time)
+      )
+      window_sub = user_df[window_mask]
+      count_tx = len(window_sub)
+      
+      if count_tx >= treshold:
+         flags.append(True)
+      else:
+         flags.append(False)
+         
+   return flags
 
 # 1) Ordenar el DataFrame
 data = data.sort_values(by=['user_id', 'transaction_date'])

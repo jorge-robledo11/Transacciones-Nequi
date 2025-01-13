@@ -18,13 +18,17 @@ Este documento describe el proceso seguido para **explorar** los datos, **identi
    - [Lógica de Fraccionamiento](#lógica-de-fraccionamiento)  
    - [Frecuencia de Actualización](#frecuencia-de-actualización)
 6. [Resultados](#resultados)
-   - [Distribución global de transacciones](#distribución-global-de-transacciones)
-   - [Densidad de montos promedios](#densidad-de-montos-promedios)
-   - [Transacciones fraccionadas por dia de la semana](#transacciones-fraccionadas-por-dia-de-la-semana)
-   - [Heatmap dia vs hora transacciones fraccionadas](#heatmap-dia-vs-hora-transacciones-fraccionadas)
-   - [Porcentaje de transacciones fraccionadas por tipo](#porcentaje-de-transacciones-fraccionadas-por-tipo)
-   - [Top 10 usuarios con mas transacciones fraccionadas](#top-10-usuarios-con-mas-transacciones-fraccionadas)
-7. [Conclusiones y Próximos pasos](#conclusiones-y-próximos-pasos)
+   - [Distribución global de transacciones](#1-distribución-global-de-transacciones)
+   - [Densidad de montos promedios](#2-densidad-de-montos-promedios)
+   - [Transacciones fraccionadas por dia de la semana](#3-transacciones-fraccionadas-por-día-de-la-semana)
+   - [Heatmap dia vs hora transacciones fraccionadas](#4-heatmap-día-vs-hora-transacciones-fraccionadas)
+   - [Porcentaje de transacciones fraccionadas por tipo](#5-porcentaje-de-transacciones-fraccionadas-por-tipo)
+   - [Top 10 usuarios con mas transacciones fraccionadas](#6-top-10-usuarios-con-más-transacciones-fraccionadas)
+7. [Conclusiones](#conclusiones)
+   - [Implementación](#1-implementación)
+   - [Trazabilidad](#2-trazabilidad)
+   - [Monitoreo](#3-monitoreo)
+   - [Próximos pasos](#4-próximos-pasos)
 
 ---
 
@@ -92,7 +96,6 @@ Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets o
 - La gran cantidad de valores atípicos sugiere que el conjunto de datos tiene muchas transacciones poco comunes con montos elevados.
 - La mediana está cerca del límite inferior de la caja, lo que refuerza que la mayoría de los datos están concentrados en valores bajos.
 
-
 ### Hipótesis Iniciales
 1. **Fraccionamiento por conteo**: Si un usuario hace más de 2 transacciones pequeñas en 24h, podría ser considerado como fraccionamiento.
 2. **Mismo Usuario / Cuenta**: Se asume que las transacciones deben compartir `user_id` o `account_number` para considerarse parte del mismo fraccionamiento.
@@ -145,7 +148,7 @@ Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets o
 ┌─────────────────────────────────────────────────────────────┐
 │5. SALIDA                                                    │
 │   - Almacenamiento de resultados (CSV, Base de datos, etc.) │
-│   - Consumir los resultados en un tablero de BI             │
+│   - Consumir los resultados en dashboards                   │
 └─────────────────────────────────────────────────────────────┘
           │
           ▼
@@ -307,23 +310,23 @@ Por medio de diversos **gráficos e indicadores**, se evidencian patrones y tend
 - Estos perfiles son los principales candidatos a ser investigados o monitoreados por los equipos de riesgo.
 
 --- 
-## Conclusiones y próximos pasos
+## Conclusiones
 
-1. **Implementación**  
+### 1. Implementación
    - Se comprobó que la heurística basada en la ventana de 24 horas identifica posibles fraccionamientos de forma clara y comprensible.  
    - No obstante, resulta fundamental **validar umbrales** (por ejemplo, `treshold`) con datos históricos y conocimiento experto del negocio para reducir falsos positivos o falsos negativos.
 
-2. **Trazabilidad**  
+### 2. Trazabilidad
    - Mantener un registro detallado de las **transformaciones** y **reglas** aplicadas (por ejemplo, en un repositorio de versiones o un documento de políticas de cumplimiento).  
    - Esto facilita auditorías y revisiones posteriores, especialmente si la detección de fraccionamiento tiene **implicaciones legales o regulatorias**.
 
-3. **Monitoreo**  
+### 3. Monitoreo
    - Una vez en producción, monitorear la **efectividad** de la detección:
      - ¿Cuántos casos son verdaderos positivos vs. cuántos falsos?  
      - ¿En qué escenarios se generan alertas innecesarias?  
    - Con esta retroalimentación, ajustar parámetros (número mínimo de transacciones) o incorporar más características relevantes.
 
-4. **Próximos Pasos**  
+### 4. Próximos Pasos
    - **Optimizar el pipeline**: refinar la construcción de ventanas (posibles mejoras en manejo de fechas, segmentación por tipo de transacción, software más sofisticado, etc.).
    - **Evaluar Integraciones**: con sistemas de notificaciones o dashboards para accionabilidad inmediata.
    - **Automatizar Alertas**: configurar reglas de negocio que notifiquen automáticamente al equipo de riesgo cuando se superen ciertos umbrales críticos.

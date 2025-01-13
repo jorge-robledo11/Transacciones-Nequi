@@ -102,16 +102,57 @@ Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets o
 ## Definición del Modelo Analítico
 
 ### Flujo de Datos
-1. **Ingesta**  
-   - Se reciben los datos en cualquier tipo de formato (p. ej. parquet, csv, etc).
-2. **Preprocesamiento**  
-   - Limpieza, formateo de fechas, eliminación de registros duplicados, entre otros.
-3. **Generación de Atributos (Features)**  
-   - Conteo de transacciones en 24h, suma de montos, etc.
-4. **Aplicación de la Lógica (Regla de negocios)**  
-   - Se etiquetan las transacciones como “fraccionadas” o “no fraccionadas” según la ventana de 24h.
-5. **Salida**  
-   - Creación de un flag (`fraction_flag`) para cada transacción.
+```plaintext
+┌──────────────────────┐
+│  INICIO DEL PROCESO  │ 
+│  (Ingesta de Datos)  │
+└──────────────────────┘
+          │
+          ▼
+┌────────────────────────────────────────────────────┐
+│1. RECEPCIÓN DE DATOS (ARCHIVOS CSV, PARQUET, ETC.) │
+│   - Lectura de los ficheros                        │
+│   - Otras fuentes de datos                         │
+└────────────────────────────────────────────────────┘
+          │
+          ▼
+┌───────────────────────────────────────────────────────┐
+│2. PREPROCESAMIENTO Y VALIDACIÓN                       │
+│   - Limpieza de registros (valores nulos, duplicados) │
+│   - Formateo de fechas (datetime)                     │
+│   - Conversión de tipos                               │
+│   - Garantizar la integridad de los datos             │
+└───────────────────────────────────────────────────────┘
+          │
+          ▼
+┌──────────────────────────────────────────────────┐
+│3. APLICACIÓN DE LA LÓGICA (REGLA DE NEGOCIOS)    │
+│   - Para cada transacción, verificar si cumple   │ 
+│     el criterio de fraccionamiento en 24h        │
+│   - Marcar como “fraccionada” o “no fraccionada” │
+└──────────────────────────────────────────────────┘
+          │
+          ▼
+┌────────────────────────────────────────────────────────────────┐
+│4. GENERACIÓN DE ATRIBUTOS (FEATURES)                           │
+│   - Cálculo de transacciones fraccionadas por día de la semana │
+│   - Cálculo de montos promedios                                │
+│   - Otros features relevantes para los tableros de BI          │
+│     y ser utilizado por los equipos de riesgo                  │
+└────────────────────────────────────────────────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────────────────────────────────┐
+│5. SALIDA                                                    │
+│   - Almacenamiento de resultados (CSV, Base de datos, etc.) │
+│   - Consumir los resultados en un tablero de BI             │
+└─────────────────────────────────────────────────────────────┘
+          │
+          ▼
+┌───────────────────┐
+│  FIN DEL PROCESO  │
+└───────────────────┘
+```
 
 ### Criterio de Selección del Modelo Analítico
 El **modelo analítico** propuesto consiste en la **evaluación de transacciones** dentro de una **ventana rodante de 24 horas** y la aplicación de una **regla heurística** (conteo de transacciones en ese lapso). A continuación, se describe el **porqué** de esta selección:

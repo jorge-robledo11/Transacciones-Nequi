@@ -47,6 +47,7 @@ En el marco de la prueba técnica, se facilita un conjunto de datos (dataset) qu
 ## Alcance y Definiciones
 - **Fraccionamiento Transaccional**: Práctica de dividir un monto grande en varios montos pequeños dentro de un lapso de 24 horas, con la misma cuenta o el mismo usuario.
 - **Ventana de Tiempo (24 horas)**: Período en el cual se evalúa la suma y el conteo de transacciones para identificar la fracción de un monto mayor.
+- **Muestreo de los Datos**: Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets originales.
 
 ### Columnas relevantes
 - **`_id`**: Identificador único del registro.
@@ -63,11 +64,8 @@ En el marco de la prueba técnica, se facilita un conjunto de datos (dataset) qu
 ## Exploración y Evaluación de Datos (EDA)
 Durante esta fase, se realizaron **descriptivos** y **validaciones** de calidad para comprender el comportamiento de las transacciones.
 
-### Muestreo de los Datos
-Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets originales.
-
 ### Calidad de Datos
-1. **Valores Nulos / Faltantes**  
+1. **Valores Nulos/Faltantes**
    - No se identificó valores nulos a nivel de registro.
 
 2. **Duplicados**  

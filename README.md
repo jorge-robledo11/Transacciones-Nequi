@@ -91,6 +91,9 @@ Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets o
   - 20% Crédito
 
 #### Visualizaciones
+
+![Diagnostic Plot](./reports/viz1.png "Diagnostic Plot")
+
 - La mayoría de las transacciones tienen montos bajos (concentradas cerca de 0).
 - Pocas transacciones tienen montos altos, lo que genera una larga cola hacia la derecha.
 - La gran cantidad de valores atípicos sugiere que el conjunto de datos tiene muchas transacciones poco comunes con montos elevados.

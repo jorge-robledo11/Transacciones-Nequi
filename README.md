@@ -1,6 +1,6 @@
 # Detección de Fraccionamiento Transaccional
 
-Este documento describe el proceso seguido para **explorar** los datos, **identificar** variables relevantes y **definir** un modelo/heurístico para detectar la práctica del **Fraccionamiento Transaccional**, entendida como la división de una transacción grande en varias más pequeñas dentro de una misma ventana de 24 horas.
+Este documento describe el proceso seguido para **explorar** los datos, **identificar** variables relevantes y **definir** un modelo heurístico para detectar la práctica del **Fraccionamiento Transaccional**, entendida como la división de una transacción grande en varias más pequeñas dentro de una misma ventana de 24 horas.
 
 ---
 
@@ -60,7 +60,7 @@ En el marco de la prueba técnica, se facilita un conjunto de datos (dataset) qu
 Durante esta fase, se realizaron **descriptivos** y **validaciones** de calidad para comprender el comportamiento de las transacciones.
 
 ### Muestreo de los Datos
-Se trabajó con una muestra correspondiente al 10% del tamaño de los datasets originales.
+Se trabajó con una muestra correspondiente al 20% del tamaño de los datasets originales.
 
 ### Calidad de Datos
 1. **Valores Nulos / Faltantes**  
@@ -69,7 +69,7 @@ Se trabajó con una muestra correspondiente al 10% del tamaño de los datasets o
 2. **Duplicados**  
    - Al analizar la **relación** entre `user_id` y `account_number`, no se cumple la condición de 1:1.
         - Es decir, un mismo `account_number` puede estar asociado a varios `user_id`, reflejando cuentas compartidas o varios autorizados sobre una sola cuenta. 
-        - Esta situación no se considera un “duplicado” tradicional, pero sí indica que distintas personas (o identificadores) podrían usar la misma cuenta, lo cual puede influir en el análisis de fraccionamiento (p. ej., hay que decidir si se agrupa por usuario o por cuenta, o por ambos).
+        - Esta situación no se considera un “duplicado” tradicional, pero sí indica que distintas personas (o usuarios) podrían usar la misma cuenta, lo cual puede influir en el análisis de fraccionamiento.
 
 3. **Consistencia en fechas**
    - Rango de fechas plausible (ej.: desde 2021-01-01 hasta 2021-11-30, sin fechas futuras ni inválidas).
@@ -226,7 +226,7 @@ En conclusión, se puede combinar un **proceso batch diario** con una **capa de 
 
 ---
 ## Resultados
-El siguiente tópico presenta un resumen visual y descriptivo de los hallazgos obtenidos tras aplicar la **lógica heurística** de detección de fraccionamiento transaccional. Esta lógica se fundamenta en agrupar las transacciones dentro de ventanas de 24 horas y marcar como “fraccionadas” aquellas que cumplan ciertos criterios (por ejemplo, número de transacciones superior a un umbral).
+A continuación se presenta un resumen visual y descriptivo de los hallazgos obtenidos tras aplicar la **lógica heurística** de detección de fraccionamiento transaccional. Esta lógica se fundamenta en agrupar las transacciones dentro de ventanas de 24 horas y marcar como “fraccionadas” aquellas que cumplan ciertos criterios (por ejemplo, número de transacciones superior a un umbral).
 
 Por medio de diversos **gráficos e indicadores**, se evidencian patrones y tendencias relevantes para el negocio, tales como la proporción global de transacciones fraccionadas, el comportamiento según día de la semana u horario, la distribución de montos y los usuarios con mayor incidencia de fraccionamiento. Estos insights permiten a las áreas de cumplimiento y riesgo **priorizar** investigaciones y **reforzar** estrategias de control enfocados en los escenarios más críticos.
 
@@ -262,7 +262,7 @@ Por medio de diversos **gráficos e indicadores**, se evidencian patrones y tend
 ### 6. Top 10 usuarios con más transacciones fraccionadas
 ![Top 10 usuarios con más transacciones fraccionadas](./reports/fig6.png "Top 10 usuarios con más transacciones fraccionadas")
 
-- La visualización final ubica a ciertos usuarios (identificados por su `user_id`) como los principales responsables de un número elevado de transacciones fraccionadas, superando los 600 eventos en algunos casos.
+- Esta visualización nos ubica a ciertos usuarios (identificados por su `user_id`) como los principales responsables de un número elevado de transacciones fraccionadas, superando los 600 eventos en algunos casos.
 - Estos perfiles son los principales candidatos a ser investigados o monitoreados por los equipos de riesgo.
 
 --- 
@@ -270,7 +270,7 @@ Por medio de diversos **gráficos e indicadores**, se evidencian patrones y tend
 
 1. **Implementación**  
    - Se comprobó que la heurística basada en la ventana de 24 horas identifica posibles fraccionamientos de forma clara y comprensible.  
-   - No obstante, resulta fundamental **validar umbrales** (por ejemplo, `min_count`) con datos históricos y conocimiento experto del negocio para reducir falsos positivos o falsos negativos.
+   - No obstante, resulta fundamental **validar umbrales** (por ejemplo, `treshold`) con datos históricos y conocimiento experto del negocio para reducir falsos positivos o falsos negativos.
 
 2. **Trazabilidad**  
    - Mantener un registro detallado de las **transformaciones** y **reglas** aplicadas (por ejemplo, en un repositorio de versiones o un documento de políticas de cumplimiento).  
@@ -280,9 +280,9 @@ Por medio de diversos **gráficos e indicadores**, se evidencian patrones y tend
    - Una vez en producción, monitorear la **efectividad** de la detección:
      - ¿Cuántos casos son verdaderos positivos vs. cuántos falsos?  
      - ¿En qué escenarios se generan alertas innecesarias?  
-   - Con esta retroalimentación, ajustar parámetros (número mínimo de transacciones, posible umbral de montos) o incorporar más características relevantes.
+   - Con esta retroalimentación, ajustar parámetros (número mínimo de transacciones) o incorporar más características relevantes.
 
 4. **Próximos Pasos**  
-   - **Optimizar el pipeline**: refinar la construcción de ventanas (posibles mejoras en manejo de fechas, segmentación por tipo de transacción, etc.).  
+   - **Optimizar el pipeline**: refinar la construcción de ventanas (posibles mejoras en manejo de fechas, segmentación por tipo de transacción, software más sofisticado, etc.).
    - **Evaluar Integraciones**: con sistemas de notificaciones o dashboards para accionabilidad inmediata.
    - **Automatizar Alertas**: configurar reglas de negocio que notifiquen automáticamente al equipo de riesgo cuando se superen ciertos umbrales críticos.
